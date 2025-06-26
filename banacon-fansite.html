@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banacon - Banana Game Lab Mascot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Styles & Scroll Snap --- */
+        :root {
+            --yellow: #FFDE59;
+            --charcoal: #2C2C2C;
+            --white: #FFFFFF;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: var(--charcoal);
+            overscroll-behavior-y: none;
+        }
+
+        .scroll-container {
+            width: 100%;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+        }
+
+        section {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- Animation --- */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition-delay: 0.2s;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .fade-in.delay-1 { transition-delay: 0.4s; }
+        .fade-in.delay-2 { transition-delay: 0.6s; }
+        .fade-in.delay-3 { transition-delay: 0.8s; }
+
+
+        /* --- Hero Section --- */
+        #hero {
+            background-color: var(--yellow);
+            text-align: center;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 1rem 0 0.5rem 0;
+        }
+        .hero-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.8;
+        }
+        .banacon-svg {
+            width: 150px;
+            height: 150px;
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 24px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+            40% { transform: translate(-50%, -15px); }
+            60% { transform: translate(-50%, -7px); }
+        }
+
+        /* --- About Section --- */
+        #about {
+            background-color: var(--white);
+        }
+        .about-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4rem;
+            max-width: 1000px;
+        }
+        .about-container .banacon-svg {
+            width: 200px;
+            height: 200px;
+            flex-shrink: 0;
+        }
+        .about-text h2 {
+            font-size: 2.5rem;
+            margin-top: 0;
+        }
+        .about-text p {
+            line-height: 1.8;
+            max-width: 500px;
+        }
+
+        /* --- Gallery Section --- */
+        #gallery {
+            background-color: var(--charcoal);
+            color: var(--white);
+        }
+        #gallery h2 {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        .gallery-container {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .gallery-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 300px;
+            text-align: center;
+        }
+        .gallery-card img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .gallery-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--yellow);
+        }
+        .gallery-card p {
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* --- Mini-Game Section --- */
+        #game {
+            background-color: var(--yellow);
+            text-align: center;
+        }
+        #game h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .game-ui {
+            display: flex;
+            gap: 2rem;
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+        .game-container {
+            width: 90%;
+            max-width: 600px;
+            height: 50vh;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .banana-emoji {
+            position: absolute;
+            font-size: 2rem;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+        }
+        .banana-emoji:hover {
+            transform: scale(1.2);
+        }
+        .game-btn {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 50px;
+            background-color: var(--charcoal);
+            color: var(--white);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .game-btn:hover {
+            background-color: #444;
+        }
+        .game-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 222, 89, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        .game-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .game-overlay h3 {
+            font-size: 3rem;
+            margin: 0;
+        }
+        .game-overlay p {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            section { padding: 1rem; }
+            .hero-title { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1rem; }
+            .about-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 2rem;
+            }
+            .about-container .banacon-svg {
+                width: 120px;
+                height: 120px;
+            }
+            .about-text h2 { font-size: 2rem; }
+            #gallery h2 { font-size: 2rem; }
+            .gallery-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .gallery-card { width: 80%; }
+            #game h2 { font-size: 2rem; }
+            .game-ui { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="scroll-container">
+
+        <!-- 1. Hero Section -->
+        <section id="hero">
+            <div class="fade-in">
+                <svg class="banacon-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="4" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.2"/>
+                        </filter>
+                    </defs>
+                    <g style="filter: url(#shadow);">
+                        <path d="M50,150 C 20,100 70,20 150,50 C 180,100 100,180 50,150 Z" fill="#FFDE59" stroke="#2C2C2C" stroke-width="5"/>
+                        <g class="face">
+                            <circle cx="85" cy="80" r="8" fill="#2C2C2C"/>
+                            <circle cx="115" cy="75" r="8" fill="#2C2C2C"/>
+                            <g transform="translate(80, 110) rotate(15)">
+                                <rect x="0" y="5" width="20" height="5" fill="#2C2C2C" rx="2"/>
+                                <rect x="7.5" y="0" width="5" height="20" fill="#2C2C2C" rx="2"/>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+            <h1 class="hero-title fade-in delay-1">ようこそ、ばなこんの世界へ</h1>
+            <p class="hero-subtitle fade-in delay-2">Banana Game Lab Mascot Character</p>
+            <div class="scroll-indicator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="color: var(--charcoal);">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- 2. About Section -->
+        <section id="about">
+            <div class="about-container">
+                <div class="fade-in">
+                    <svg class="banacon-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <g>
+                            <path d="M50,150 C 20,100 70,20 150,50 C 180,100 100,180 50,150 Z" fill="#FFDE59" stroke="#2C2C2C" stroke-width="5"/>
+                            <g class="face">
+                                <circle cx="85" cy="80" r="8" fill="#2C2C2C"/>
+                                <circle cx="115" cy="75" r="8" fill="#2C2C2C"/>
+                                <g transform="translate(80, 110) rotate(15)">
+                                    <rect x="0" y="5" width="20" height="5" fill="#2C2C2C" rx="2"/>
+                                    <rect x="7.5" y="0" width="5" height="20" fill="#2C2C2C" rx="2"/>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+                <div class="about-text fade-in delay-1">
+                    <h2>About "Banacon"</h2>
+                    <p>「ばなこん」は、Web3時代のゲームコミュニティ「Banana Game Lab (BGL)」の公式マスコットキャラクター。</p>
+                    <p>その正体は、BGLのロゴである "バナナ型ゲームコントローラー" そのもの。ロゴのボタンが顔のように見えることから着想を得て、デザイナーのねずみまる氏によって命を吹き込まれました。</p>
+                    <p>あえて詳細な設定を設けず、コミュニティの想像力で共に育てていく「開かれたキャンバス」のような存在です。</p>
+                    <p>BGLが掲げる「ゲームを軸にした居場所づくり」の象徴として、今日もみんなを繋いでいます。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Gallery Section -->
+        <section id="gallery">
+            <h2 class="fade-in">Fan Art Gallery</h2>
+            <div class="gallery-container">
+                <div class="gallery-card fade-in delay-1">
+                    <img src="https://placehold.jp/300x200/ffffff/2c2c2c.png?text=Real+Banana+Art" alt="Fan Art by LENZ">
+                    <h3>最優秀賞 by LENZ</h3>
+                    <p>本物のバナナに描くという発想と表現力が高く評価されました。</p>
+                </div>
+                <div class="gallery-card fade-in delay-2">
+                    <img src="https://placehold.jp/300x200/ffffff/2c2c2c.png?text=Daily+Life" alt="Fan Art by まるみや">
+                    <h3>優秀賞 by まるみや</h3>
+                    <p>ばなこんの日常が想像できる、BGLらしさが詰まった作品。</p>
+                </div>
+                <div class="gallery-card fade-in delay-3">
+                    <img src="https://placehold.jp/300x200/ffffff/2c2c2c.png?text=Clay+Art" alt="Fan Art by Mohiro">
+                    <h3>ユニーク賞 by Mohiro</h3>
+                    <p>デジタルではなく紙粘土で表現した独創的なファンアート。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Mini-Game Section -->
+        <section id="game">
+            <div class="fade-in">
+                <h2>ミニゲーム：バナナあつめ！</h2>
+                <p>制限時間内に画面上の🍌をたくさんクリック！</p>
+            </div>
+            <div class="game-ui fade-in delay-1">
+                <div id="score-display">Score: 0</div>
+                <div id="time-display">Time: 15</div>
+            </div>
+            <div id="game-container" class="game-container fade-in delay-2">
+                <div id="game-overlay" class="game-overlay">
+                    <h3 id="game-over-text"></h3>
+                    <p id="final-score-text"></p>
+                    <button id="retry-btn" class="game-btn">もう一度挑戦</button>
+                </div>
+            </div>
+            <button id="start-btn" class="game-btn fade-in delay-3">スタート</button>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Fade-in Animation on Scroll ---
+        const animatedElements = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                } else {
+                    // Optional: remove class when out of view to re-trigger animation
+                    // entry.target.classList.remove('visible');
+                }
+            });
+        }, { threshold: 0.2 }); // Trigger when 20% of the element is visible
+
+        animatedElements.forEach(el => observer.observe(el));
+
+        // --- Mini-Game Logic ---
+        const startBtn = document.getElementById('start-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const gameContainer = document.getElementById('game-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const timeDisplay = document.getElementById('time-display');
+        const gameOverlay = document.getElementById('game-overlay');
+        const gameOverText = document.getElementById('game-over-text');
+        const finalScoreText = document.getElementById('final-score-text');
+
+        let score = 0;
+        let timeLeft = 15;
+        let timerId = null;
+        let bananaIntervalId = null;
+        let isGameActive = false;
+
+        function startGame() {
+            isGameActive = true;
+            score = 0;
+            timeLeft = 15;
+            scoreDisplay.textContent = `Score: ${score}`;
+            timeDisplay.textContent = `Time: ${timeLeft}`;
+            startBtn.style.display = 'none';
+            retryBtn.style.display = 'none';
+            gameOverlay.classList.remove('show');
+            
+            // Clear any existing bananas
+            const bananas = gameContainer.querySelectorAll('.banana-emoji');
+            bananas.forEach(b => b.remove());
+
+            timerId = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = `Time: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            bananaIntervalId = setInterval(createBanana, 1000);
+            // Also create a banana right at the start
+            createBanana(); 
+        }
+
+        function createBanana() {
+            if (!isGameActive) return;
+            const banana = document.createElement('div');
+            banana.classList.add('banana-emoji');
+            banana.textContent = '🍌';
+            
+            const containerRect = gameContainer.getBoundingClientRect();
+            const x = Math.random() * (containerRect.width - 30);
+            const y = Math.random() * (containerRect.height - 30);
+
+            banana.style.left = `${x}px`;
+            banana.style.top = `${y}px`;
+
+            banana.addEventListener('click', () => {
+                if (!isGameActive) return;
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                banana.remove();
+            }, { once: true });
+
+            gameContainer.appendChild(banana);
+        }
+
+        function endGame() {
+            isGameActive = false;
+            clearInterval(timerId);
+            clearInterval(bananaIntervalId);
+            
+            gameOverText.textContent = 'ゲームオーバー！';
+            finalScoreText.textContent = `最終スコア: ${score}`;
+            retryBtn.style.display = 'block';
+            startBtn.style.display = 'none';
+            gameOverlay.classList.add('show');
+        }
+
+        startBtn.addEventListener('click', startGame);
+        retryBtn.addEventListener('click', startGame);
+    });
+    </script>
+
+</body>
+</html>
