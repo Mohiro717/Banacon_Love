@@ -3,16 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banacon - Banana Game Lab Mascot</title>
+    <title>ばなこん - BANANA GAME LAB MASCOT CHARACTER</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        /* --- Base Styles & Scroll Snap --- */
+        /* --- Global Styles & Reset --- */
         :root {
-            --yellow: #FFDE59;
-            --charcoal: #2C2C2C;
-            --white: #FFFFFF;
+            --bg-color: #FDF4E3; /* Light Sand */
+            --text-color: #4E412B; /* Earthy Brown */
+            --title-color: #006400; /* Deep Jungle Green */
+            --banana-yellow: #FFD700; /* Gold Yellow */
+            --leaf-green: #3CB371; /* Vibrant Leaf Green */
+            --sky-blue: #40E0D0;   /* Turquoise Sky */
+            --font-main: 'M PLUS Rounded 1c', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         html {
@@ -20,451 +30,643 @@
         }
 
         body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            color: var(--charcoal);
-            overscroll-behavior-y: none;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            cursor: none;
+            overflow-x: hidden;
         }
 
-        .scroll-container {
+        /* --- Custom Cursor --- */
+        #cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--text-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            transition: width 0.3s, height 0.3s, background-color 0.3s, border-color 0.3s;
+            z-index: 9999;
+        }
+
+        #cursor.hover {
+            width: 40px;
+            height: 40px;
+            background-color: var(--banana-yellow);
+            border-color: var(--banana-yellow);
+        }
+
+        /* --- Loader --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #loader-svg {
+            width: 150px;
+            height: auto;
+        }
+
+        #loader-svg path {
+            stroke: var(--text-color);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 500;
+            stroke-dashoffset: 500;
+            animation: draw 2s ease-in-out forwards;
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* --- Main Content --- */
+        #main-content {
+            opacity: 0;
+            transition: opacity 0.8s ease-in;
+        }
+
+        /* --- Header --- */
+        #main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 25px 5%;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        #main-header nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2.5rem;
+            margin: 0;
+        }
+
+        #main-header nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-family: var(--font-main);
+            font-weight: 700;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        #main-header nav a:hover {
+            color: var(--sky-blue);
         }
 
         section {
-            height: 100vh;
-            width: 100%;
-            scroll-snap-align: start;
+            padding: 100px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 60vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            box-sizing: border-box;
-            position: relative;
-            overflow: hidden;
+            scroll-margin-top: 80px; /* Header offset */
         }
 
-        /* --- Animation --- */
-        .fade-in {
+        /* --- Scroll Animation --- */
+        .scroll-anim {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px);
             transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            transition-delay: 0.2s;
         }
-        .fade-in.visible {
+
+        .scroll-anim.visible {
             opacity: 1;
             transform: translateY(0);
         }
-        .fade-in.delay-1 { transition-delay: 0.4s; }
-        .fade-in.delay-2 { transition-delay: 0.6s; }
-        .fade-in.delay-3 { transition-delay: 0.8s; }
-
 
         /* --- Hero Section --- */
         #hero {
-            background-color: var(--yellow);
+            min-height: 100vh;
             text-align: center;
-        }
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin: 1rem 0 0.5rem 0;
-        }
-        .hero-subtitle {
-            font-size: 1.5rem;
-            opacity: 0.8;
-        }
-        .banacon-svg {
-            width: 150px;
-            height: 150px;
-        }
-        .scroll-indicator {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 24px;
-            height: 24px;
-            animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
-            40% { transform: translate(-50%, -15px); }
-            60% { transform: translate(-50%, -7px); }
-        }
-
-        /* --- About Section --- */
-        #about {
-            background-color: var(--white);
-        }
-        .about-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4rem;
-            max-width: 1000px;
-        }
-        .about-container .banacon-svg {
-            width: 200px;
-            height: 200px;
-            flex-shrink: 0;
-        }
-        .about-text h2 {
-            font-size: 2.5rem;
-            margin-top: 0;
-        }
-        .about-text p {
-            line-height: 1.8;
-            max-width: 500px;
-        }
-
-        /* --- Gallery Section --- */
-        #gallery {
-            background-color: var(--charcoal);
-            color: var(--white);
-        }
-        #gallery h2 {
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-        }
-        .gallery-container {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .gallery-card {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1.5rem;
-            width: 300px;
-            text-align: center;
-        }
-        .gallery-card img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-        .gallery-card h3 {
-            margin: 0 0 0.5rem 0;
-            color: var(--yellow);
-        }
-        .gallery-card p {
-            margin: 0;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        /* --- Mini-Game Section --- */
-        #game {
-            background-color: var(--yellow);
-            text-align: center;
-        }
-        #game h2 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .game-ui {
-            display: flex;
-            gap: 2rem;
-            font-size: 1.5rem;
-            margin: 1rem 0;
-        }
-        .game-container {
-            width: 90%;
-            max-width: 600px;
-            height: 50vh;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
             position: relative;
             overflow: hidden;
         }
-        .banana-emoji {
+
+        #hero-bg-svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120%;
+            min-width: 800px;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            opacity: 0.1;
+            color: var(--text-color);
+        }
+
+        #hero h1 {
+            font-family: var(--font-main);
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--title-color);
+        }
+
+        #hero p {
+            font-family: var(--font-main);
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            letter-spacing: 0.2em;
+            margin-top: 1rem;
+            font-weight: 400;
+        }
+
+        /* --- About Section --- */
+        #about .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 5rem;
+            align-items: center;
+        }
+
+        #about h2 {
+            font-family: var(--font-main);
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.6;
+            font-weight: 700;
+            color: var(--sky-blue);
+        }
+
+        #about .text-content p {
+            font-size: clamp(0.9rem, 1.5vw, 1rem);
+            line-height: 1.8;
+        }
+        
+        #about .text-content p:first-child {
+            margin-bottom: 1.5rem;
+        }
+
+        #about .scroll-anim:nth-child(2) {
+            transition-delay: 0.2s;
+        }
+
+        /* --- Creations Section --- */
+        #creations h2 {
+            font-family: var(--font-main);
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            margin-bottom: 3rem;
+            text-align: left;
+            font-weight: 800;
+            color: var(--title-color);
+        }
+
+        .creation-item {
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(78, 65, 43, 0.2);
+            font-family: var(--font-main);
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            transition: color 0.3s;
+            cursor: none;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        
+        .creation-item:first-of-type {
+            border-top: 1px solid rgba(78, 65, 43, 0.2);
+        }
+
+        .creation-item:hover {
+            color: var(--leaf-green);
+        }
+
+        #creation-image-preview {
+            position: fixed;
+            width: 400px;
+            height: 300px;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9998;
+            overflow: hidden;
+            transition: opacity 0.3s;
+        }
+
+        #creation-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- Mini-Game Section --- */
+        #mini-game {
+            text-align: center;
+        }
+
+        #mini-game h2 {
+            font-family: var(--font-main);
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--sky-blue);
+        }
+
+        #mini-game p {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+        
+        #mini-game p .banana-emoji {
+            font-size: 1.2em;
+        }
+
+        .game-ui {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .game-area {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 300px;
+            background-color: rgba(255, 255, 255, 0.5);
+            margin: 0 auto 2rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .game-banana {
             position: absolute;
             font-size: 2rem;
-            cursor: pointer;
             user-select: none;
-            transition: transform 0.1s ease;
+            cursor: none;
         }
-        .banana-emoji:hover {
-            transform: scale(1.2);
-        }
-        .game-btn {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
+
+        .game-button {
+            font-family: var(--font-main);
+            background: transparent;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
             padding: 0.8rem 2rem;
-            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: none;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
             border-radius: 50px;
-            background-color: var(--charcoal);
-            color: var(--white);
-            cursor: pointer;
-            transition: background-color 0.3s;
         }
-        .game-btn:hover {
-            background-color: #444;
+
+        .game-button:hover {
+            background-color: var(--leaf-green);
+            border-color: var(--leaf-green);
+            color: var(--bg-color);
         }
-        .game-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255, 222, 89, 0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.5s, visibility 0.5s;
-        }
-        .game-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .game-overlay h3 {
-            font-size: 3rem;
-            margin: 0;
-        }
-        .game-overlay p {
+        
+        #game-end-message {
             font-size: 1.5rem;
-            margin: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Fan Art Section --- */
+        #fan-art h2 {
+            font-family: var(--font-main);
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            margin-bottom: 3rem;
+            text-align: center;
+            font-weight: 800;
+            color: var(--title-color);
+        }
+
+        .fan-art-form {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .fan-art-form input[type="file"] {
+            display: none; /* Hide the default input */
+        }
+
+        .fan-art-form .file-label {
+            background-color: var(--leaf-green);
+            color: var(--bg-color);
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: none;
+            transition: background-color 0.3s;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        .fan-art-form .file-label:hover {
+            background-color: var(--sky-blue);
+        }
+
+        #fan-art-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .fan-art-item {
+            width: 100%;
+            padding-bottom: 100%; /* Aspect ratio 1:1 */
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .fan-art-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         /* --- Responsive Design --- */
         @media (max-width: 768px) {
-            section { padding: 1rem; }
-            .hero-title { font-size: 2.5rem; }
-            .hero-subtitle { font-size: 1rem; }
-            .about-container {
-                flex-direction: column;
-                text-align: center;
+            section {
+                padding: 80px 5%;
+            }
+
+            #about .content-wrapper {
+                grid-template-columns: 1fr;
                 gap: 2rem;
             }
-            .about-container .banacon-svg {
-                width: 120px;
-                height: 120px;
+
+            #about h2 {
+                text-align: left;
             }
-            .about-text h2 { font-size: 2rem; }
-            #gallery h2 { font-size: 2rem; }
-            .gallery-container {
-                flex-direction: column;
-                align-items: center;
+            
+            #creation-image-preview {
+                display: none;
             }
-            .gallery-card { width: 80%; }
-            #game h2 { font-size: 2rem; }
-            .game-ui { font-size: 1.2rem; }
         }
+
     </style>
 </head>
 <body>
 
-    <main class="scroll-container">
+    <div id="cursor"></div>
 
-        <!-- 1. Hero Section -->
+    <header id="main-header">
+        <nav>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#creations">Creations</a></li>
+                <li><a href="#mini-game">Game</a></li>
+                <li><a href="#fan-art">Fan Art</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="loader">
+        <svg id="loader-svg" viewBox="0 0 104 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M83.1667 1C93.5833 1 103 10.4167 103 20.8333V43.1667C103 53.5833 93.5833 63 83.1667 63H20.8333C10.4167 63 1 53.5833 1 43.1667V20.8333C1 10.4167 10.4167 1 20.8333 1H36.5M83.1667 1H67.5M20.8333 26.8333H31.3333M26.0833 21.3333V32.3333M72.6667 26.8333H83.1667M72.6667 37.8333H83.1667" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </div>
+
+    <main id="main-content">
         <section id="hero">
-            <div class="fade-in">
-                <svg class="banacon-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feDropShadow dx="4" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.2"/>
-                        </filter>
-                    </defs>
-                    <g style="filter: url(#shadow);">
-                        <path d="M50,150 C 20,100 70,20 150,50 C 180,100 100,180 50,150 Z" fill="#FFDE59" stroke="#2C2C2C" stroke-width="5"/>
-                        <g class="face">
-                            <circle cx="85" cy="80" r="8" fill="#2C2C2C"/>
-                            <circle cx="115" cy="75" r="8" fill="#2C2C2C"/>
-                            <g transform="translate(80, 110) rotate(15)">
-                                <rect x="0" y="5" width="20" height="5" fill="#2C2C2C" rx="2"/>
-                                <rect x="7.5" y="0" width="5" height="20" fill="#2C2C2C" rx="2"/>
-                            </g>
-                        </g>
-                    </g>
-                </svg>
-            </div>
-            <h1 class="hero-title fade-in delay-1">ようこそ、ばなこんの世界へ</h1>
-            <p class="hero-subtitle fade-in delay-2">Banana Game Lab Mascot Character</p>
-            <div class="scroll-indicator">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="color: var(--charcoal);">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
+            <svg id="hero-bg-svg" viewBox="0 0 104 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M83.1667 1C93.5833 1 103 10.4167 103 20.8333V43.1667C103 53.5833 93.5833 63 83.1667 63H20.8333C10.4167 63 1 53.5833 1 43.1667V20.8333C1 10.4167 10.4167 1 20.8333 1H36.5M83.1667 1H67.5M20.8333 26.8333H31.3333M26.0833 21.3333V32.3333M72.6667 26.8333H83.1667M72.6667 37.8333H83.1667" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+            </svg>
+            <div class="content-wrapper">
+                <h1 class="scroll-anim">ばなこん</h1>
+                <p class="scroll-anim" style="transition-delay: 0.1s;">BANANA GAME LAB MASCOT CHARACTER</p>
             </div>
         </section>
 
-        <!-- 2. About Section -->
         <section id="about">
-            <div class="about-container">
-                <div class="fade-in">
-                    <svg class="banacon-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                        <g>
-                            <path d="M50,150 C 20,100 70,20 150,50 C 180,100 100,180 50,150 Z" fill="#FFDE59" stroke="#2C2C2C" stroke-width="5"/>
-                            <g class="face">
-                                <circle cx="85" cy="80" r="8" fill="#2C2C2C"/>
-                                <circle cx="115" cy="75" r="8" fill="#2C2C2C"/>
-                                <g transform="translate(80, 110) rotate(15)">
-                                    <rect x="0" y="5" width="20" height="5" fill="#2C2C2C" rx="2"/>
-                                    <rect x="7.5" y="0" width="5" height="20" fill="#2C2C2C" rx="2"/>
-                                </g>
-                            </g>
-                        </g>
-                    </svg>
-                </div>
-                <div class="about-text fade-in delay-1">
-                    <h2>About "Banacon"</h2>
-                    <p>「ばなこん」は、Web3時代のゲームコミュニティ「Banana Game Lab (BGL)」の公式マスコットキャラクター。</p>
-                    <p>その正体は、BGLのロゴである "バナナ型ゲームコントローラー" そのもの。ロゴのボタンが顔のように見えることから着想を得て、デザイナーのねずみまる氏によって命を吹き込まれました。</p>
-                    <p>あえて詳細な設定を設けず、コミュニティの想像力で共に育てていく「開かれたキャンバス」のような存在です。</p>
-                    <p>BGLが掲げる「ゲームを軸にした居場所づくり」の象徴として、今日もみんなを繋いでいます。</p>
+            <div class="content-wrapper">
+                <h2 class="scroll-anim">“ロゴ”から生まれた、<br>みんなの相棒。</h2>
+                <div class="text-content scroll-anim">
+                    <p>「ばなこん」は、Web3時代のゲームコミュニティ「Banana Game Lab (BGL)」の公式マスコット。そのオリジンは、BGLのロゴである"バナナ型ゲームコントローラー"そのものです。</p>
+                    <p>デザイナーのねずみまる氏によって命を吹き込まれましたが、厳密な設定はあえて「空白」に。コミュニティの想像力で共に育てていく「開かれたキャンバス」として、BGLが掲げる「ゲームを軸にした居場所づくり」の象徴となっています。</p>
                 </div>
             </div>
         </section>
 
-        <!-- 3. Gallery Section -->
-        <section id="gallery">
-            <h2 class="fade-in">Fan Art Gallery</h2>
-            <div class="gallery-container">
-                <div class="gallery-card fade-in delay-1">
-                    <img src="https://placehold.jp/300x200/ffffff/2c2c2c.png?text=Real+Banana+Art" alt="Fan Art by LENZ">
-                    <h3>最優秀賞 by LENZ</h3>
-                    <p>本物のバナナに描くという発想と表現力が高く評価されました。</p>
-                </div>
-                <div class="gallery-card fade-in delay-2">
-                    <img src="https://placehold.jp/300x200/ffffff/2c2c2c.png?text=Daily+Life" alt="Fan Art by まるみや">
-                    <h3>優秀賞 by まるみや</h3>
-                    <p>ばなこんの日常が想像できる、BGLらしさが詰まった作品。</p>
-                </div>
-                <div class="gallery-card fade-in delay-3">
-                    <img src="https://placehold.jp/300x200/ffffff/2c2c2c.png?text=Clay+Art" alt="Fan Art by Mohiro">
-                    <h3>ユニーク賞 by Mohiro</h3>
-                    <p>デジタルではなく紙粘土で表現した独創的なファンアート。</p>
-                </div>
+        <section id="creations">
+            <h2 class="scroll-anim">Creations</h2>
+            <div class="creations-list">
+                <div class="creation-item scroll-anim" data-image="https://placehold.jp/3d405b/ffffff/400x300.png?text=Fan+Art">01. Fan Art Contest '24</div>
+                <div class="creation-item scroll-anim" data-image="https://placehold.jp/7a6855/ffffff/400x300.png?text=Goods">02. BGL Original Goods</div>
+                <div class="creation-item scroll-anim" data-image="https://placehold.jp/5a7a5a/ffffff/400x300.png?text=UEFN">03. Banacon Village Project (UEFN)</div>
+            </div>
+        </section>
+        <div id="creation-image-preview"><img src="" alt="Preview"></div>
+
+        <section id="mini-game">
+            <h2 class="scroll-anim">Mini Game: CATCH THE BANANA!</h2>
+            <p class="scroll-anim">15秒間で、画面に出現する <span class="banana-emoji">🍌</span> をクリックしよう。</p>
+            
+            <div class="game-ui scroll-anim">
+                <div id="game-score">SCORE: 0</div>
+                <div id="game-timer">TIME: 15</div>
+            </div>
+
+            <div class="game-area scroll-anim"></div>
+            
+            <div id="game-controls" class="scroll-anim">
+                <div id="game-end-message" style="display: none;"></div>
+                <button id="start-button" class="game-button">START</button>
+                <button id="retry-button" class="game-button" style="display: none;">RETRY</button>
             </div>
         </section>
 
-        <!-- 4. Mini-Game Section -->
-        <section id="game">
-            <div class="fade-in">
-                <h2>ミニゲーム：バナナあつめ！</h2>
-                <p>制限時間内に画面上の🍌をたくさんクリック！</p>
+        <section id="fan-art">
+            <h2 class="scroll-anim">Fan Art Gallery</h2>
+            <div class="fan-art-form scroll-anim">
+                <label for="fan-art-upload" class="file-label">+ アートを投稿する</label>
+                <input type="file" id="fan-art-upload" accept="image/*">
             </div>
-            <div class="game-ui fade-in delay-1">
-                <div id="score-display">Score: 0</div>
-                <div id="time-display">Time: 15</div>
-            </div>
-            <div id="game-container" class="game-container fade-in delay-2">
-                <div id="game-overlay" class="game-overlay">
-                    <h3 id="game-over-text"></h3>
-                    <p id="final-score-text"></p>
-                    <button id="retry-btn" class="game-btn">もう一度挑戦</button>
-                </div>
-            </div>
-            <button id="start-btn" class="game-btn fade-in delay-3">スタート</button>
+            <div id="fan-art-grid" class="scroll-anim"></div>
         </section>
-
     </main>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- Fade-in Animation on Scroll ---
-        const animatedElements = document.querySelectorAll('.fade-in');
+
+        // --- Loader ---
+        const loader = document.getElementById('loader');
+        const mainContent = document.getElementById('main-content');
+        const loaderPath = document.querySelector('#loader-svg path');
+        
+        // Wait for SVG animation to finish, then fade out loader
+        loaderPath.addEventListener('animationend', () => {
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                mainContent.style.opacity = '1';
+                // After fade out transition, hide loader completely
+                loader.addEventListener('transitionend', () => {
+                    loader.style.display = 'none';
+                });
+            }, 500); // A brief pause after drawing
+        });
+
+        // --- Custom Cursor ---
+        const cursor = document.getElementById('cursor');
+        const clickableElements = document.querySelectorAll('a, button, .creation-item, .game-banana');
+
+        window.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        const addHoverEffect = (elements) => {
+            elements.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+            });
+        }
+        addHoverEffect(clickableElements);
+
+
+        // --- Scroll Animations ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
-                } else {
-                    // Optional: remove class when out of view to re-trigger animation
-                    // entry.target.classList.remove('visible');
+                    observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.2 }); // Trigger when 20% of the element is visible
+        }, { threshold: 0.1 });
 
-        animatedElements.forEach(el => observer.observe(el));
+        document.querySelectorAll('.scroll-anim').forEach(el => {
+            observer.observe(el);
+        });
 
-        // --- Mini-Game Logic ---
-        const startBtn = document.getElementById('start-btn');
-        const retryBtn = document.getElementById('retry-btn');
-        const gameContainer = document.getElementById('game-container');
-        const scoreDisplay = document.getElementById('score-display');
-        const timeDisplay = document.getElementById('time-display');
-        const gameOverlay = document.getElementById('game-overlay');
-        const gameOverText = document.getElementById('game-over-text');
-        const finalScoreText = document.getElementById('final-score-text');
+        // --- Creations Hover Image ---
+        const imagePreview = document.getElementById('creation-image-preview');
+        const previewImg = imagePreview.querySelector('img');
+        const creationItems = document.querySelectorAll('.creation-item');
+
+        creationItems.forEach(item => {
+            item.addEventListener('mousemove', e => {
+                imagePreview.style.left = e.clientX + 'px';
+                imagePreview.style.top = e.clientY + 'px';
+            });
+            item.addEventListener('mouseenter', () => {
+                const imgSrc = item.getAttribute('data-image');
+                previewImg.src = imgSrc;
+                imagePreview.style.opacity = '1';
+            });
+            item.addEventListener('mouseleave', () => {
+                imagePreview.style.opacity = '0';
+            });
+        });
+
+        // --- Mini Game ---
+        const gameArea = document.querySelector('.game-area');
+        const scoreDisplay = document.getElementById('game-score');
+        const timerDisplay = document.getElementById('game-timer');
+        const startButton = document.getElementById('start-button');
+        const retryButton = document.getElementById('retry-button');
+        const endMessage = document.getElementById('game-end-message');
 
         let score = 0;
         let timeLeft = 15;
-        let timerId = null;
-        let bananaIntervalId = null;
-        let isGameActive = false;
+        let gameInterval = null;
+        let gameTimeout = null;
 
         function startGame() {
-            isGameActive = true;
             score = 0;
             timeLeft = 15;
-            scoreDisplay.textContent = `Score: ${score}`;
-            timeDisplay.textContent = `Time: ${timeLeft}`;
-            startBtn.style.display = 'none';
-            retryBtn.style.display = 'none';
-            gameOverlay.classList.remove('show');
+            scoreDisplay.textContent = `SCORE: ${score}`;
+            timerDisplay.textContent = `TIME: ${timeLeft}`;
             
-            // Clear any existing bananas
-            const bananas = gameContainer.querySelectorAll('.banana-emoji');
-            bananas.forEach(b => b.remove());
+            startButton.style.display = 'none';
+            retryButton.style.display = 'none';
+            endMessage.style.display = 'none';
+            gameArea.innerHTML = '';
 
-            timerId = setInterval(() => {
+            createBanana();
+
+            gameInterval = setInterval(() => {
                 timeLeft--;
-                timeDisplay.textContent = `Time: ${timeLeft}`;
-                if (timeLeft <= 0) {
-                    endGame();
-                }
+                timerDisplay.textContent = `TIME: ${timeLeft}`;
             }, 1000);
 
-            bananaIntervalId = setInterval(createBanana, 1000);
-            // Also create a banana right at the start
-            createBanana(); 
-        }
-
-        function createBanana() {
-            if (!isGameActive) return;
-            const banana = document.createElement('div');
-            banana.classList.add('banana-emoji');
-            banana.textContent = '🍌';
-            
-            const containerRect = gameContainer.getBoundingClientRect();
-            const x = Math.random() * (containerRect.width - 30);
-            const y = Math.random() * (containerRect.height - 30);
-
-            banana.style.left = `${x}px`;
-            banana.style.top = `${y}px`;
-
-            banana.addEventListener('click', () => {
-                if (!isGameActive) return;
-                score++;
-                scoreDisplay.textContent = `Score: ${score}`;
-                banana.remove();
-            }, { once: true });
-
-            gameContainer.appendChild(banana);
+            gameTimeout = setTimeout(endGame, 15000);
         }
 
         function endGame() {
-            isGameActive = false;
-            clearInterval(timerId);
-            clearInterval(bananaIntervalId);
-            
-            gameOverText.textContent = 'ゲームオーバー！';
-            finalScoreText.textContent = `最終スコア: ${score}`;
-            retryBtn.style.display = 'block';
-            startBtn.style.display = 'none';
-            gameOverlay.classList.add('show');
+            clearInterval(gameInterval);
+            clearTimeout(gameTimeout);
+            gameArea.innerHTML = '';
+            endMessage.textContent = `TIME'S UP! YOUR SCORE: ${score}`;
+            endMessage.style.display = 'block';
+            retryButton.style.display = 'inline-block';
         }
 
-        startBtn.addEventListener('click', startGame);
-        retryBtn.addEventListener('click', startGame);
+        function createBanana() {
+            const banana = document.createElement('span');
+            banana.textContent = '🍌';
+            banana.classList.add('game-banana');
+            
+            const gameRect = gameArea.getBoundingClientRect();
+            const bananaSize = 32; // Approx size of the emoji
+            
+            banana.style.left = Math.random() * (gameRect.width - bananaSize) + 'px';
+            banana.style.top = Math.random() * (gameRect.height - bananaSize) + 'px';
+
+            banana.addEventListener('click', handleBananaClick);
+            
+            // Re-apply hover effect for the new banana
+            addHoverEffect([banana]);
+
+            gameArea.appendChild(banana);
+        }
+
+        function handleBananaClick(e) {
+            score++;
+            scoreDisplay.textContent = `SCORE: ${score}`;
+            e.target.remove();
+            createBanana();
+        }
+
+        startButton.addEventListener('click', startGame);
+        retryButton.addEventListener('click', startGame);
+
+        // --- Fan Art Uploader ---
+        const fanArtUpload = document.getElementById('fan-art-upload');
+        const fanArtGrid = document.getElementById('fan-art-grid');
+
+        fanArtUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const newArtItem = document.createElement('div');
+                    newArtItem.classList.add('fan-art-item');
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    
+                    newArtItem.appendChild(img);
+                    fanArtGrid.prepend(newArtItem); // Add new art to the top
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
     });
     </script>
-
 </body>
 </html>
