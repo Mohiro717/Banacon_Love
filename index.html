@@ -1,672 +1,319 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ばなこん - BANANA GAME LAB MASCOT CHARACTER</title>
+    <title>Banacon - Unofficial Fan Site</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
-        /* --- Global Styles & Reset --- */
         :root {
-            --bg-color: #FDF4E3; /* Light Sand */
-            --text-color: #4E412B; /* Earthy Brown */
-            --title-color: #006400; /* Deep Jungle Green */
-            --banana-yellow: #FFD700; /* Gold Yellow */
-            --leaf-green: #3CB371; /* Vibrant Leaf Green */
-            --sky-blue: #40E0D0;   /* Turquoise Sky */
-            --font-main: 'M PLUS Rounded 1c', sans-serif;
+            --font-press-start: 'Press Start 2P', cursive;
+            --font-inter: 'Inter', sans-serif;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-main);
-            cursor: none;
+            font-family: var(--font-inter);
+            color: #ffffff;
             overflow-x: hidden;
         }
-
-        /* --- Custom Cursor --- */
-        #cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            border: 1px solid var(--text-color);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            transition: width 0.3s, height 0.3s, background-color 0.3s, border-color 0.3s;
-            z-index: 9999;
-        }
-
-        #cursor.hover {
-            width: 40px;
-            height: 40px;
-            background-color: var(--banana-yellow);
-            border-color: var(--banana-yellow);
-        }
-
-        /* --- Loader --- */
-        #loader {
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            transition: opacity 0.5s ease-out;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background: linear-gradient(90deg, #16a085, #f1c40f);
+            background-size: 200% 200%;
+            animation: gradient-animation 15s ease infinite;
         }
-
-        #loader-svg {
-            width: 150px;
-            height: auto;
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-
-        #loader-svg path {
-            stroke: var(--text-color);
-            stroke-width: 2;
-            fill: none;
-            stroke-dasharray: 500;
-            stroke-dashoffset: 500;
-            animation: draw 2s ease-in-out forwards;
+        .font-press-start { font-family: var(--font-press-start); }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
-
-        @keyframes draw {
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
-
-        /* --- Main Content --- */
-        #main-content {
+        .scroll-animate {
             opacity: 0;
-            transition: opacity 0.8s ease-in;
+            transform: translateY(2rem);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
-
-        /* --- Header --- */
-        #main-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 25px 5%;
-            z-index: 1000;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            transition: background-color 0.3s;
-        }
-
-        #main-header nav ul {
-            list-style: none;
-            display: flex;
-            gap: 2.5rem;
-            margin: 0;
-        }
-
-        #main-header nav a {
-            text-decoration: none;
-            color: var(--text-color);
-            font-family: var(--font-main);
-            font-weight: 700;
-            font-size: 1rem;
-            transition: color 0.3s;
-        }
-
-        #main-header nav a:hover {
-            color: var(--sky-blue);
-        }
-
-        section {
-            padding: 100px 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-            min-height: 60vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            scroll-margin-top: 80px; /* Header offset */
-        }
-
-        /* --- Scroll Animation --- */
-        .scroll-anim {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .scroll-anim.visible {
+        .scroll-animate.visible {
             opacity: 1;
             transform: translateY(0);
         }
-
-        /* --- Hero Section --- */
-        #hero {
-            min-height: 100vh;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #hero-bg-svg {
+        .banana-icon {
+            font-size: 2.5rem;
+            cursor: pointer;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 120%;
-            min-width: 800px;
-            transform: translate(-50%, -50%);
-            z-index: -1;
-            opacity: 0.1;
-            color: var(--text-color);
-        }
-
-        #hero h1 {
-            font-family: var(--font-main);
-            font-size: clamp(3.5rem, 10vw, 8rem);
-            font-weight: 800;
-            line-height: 1.2;
-            color: var(--title-color);
-        }
-
-        #hero p {
-            font-family: var(--font-main);
-            font-size: clamp(0.8rem, 2vw, 1rem);
-            letter-spacing: 0.2em;
-            margin-top: 1rem;
-            font-weight: 400;
-        }
-
-        /* --- About Section --- */
-        #about .content-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 5rem;
-            align-items: center;
-        }
-
-        #about h2 {
-            font-family: var(--font-main);
-            font-size: clamp(2rem, 5vw, 3rem);
-            line-height: 1.6;
-            font-weight: 700;
-            color: var(--sky-blue);
-        }
-
-        #about .text-content p {
-            font-size: clamp(0.9rem, 1.5vw, 1rem);
-            line-height: 1.8;
-        }
-        
-        #about .text-content p:first-child {
-            margin-bottom: 1.5rem;
-        }
-
-        #about .scroll-anim:nth-child(2) {
-            transition-delay: 0.2s;
-        }
-
-        /* --- Creations Section --- */
-        #creations h2 {
-            font-family: var(--font-main);
-            font-size: clamp(2.5rem, 8vw, 5rem);
-            margin-bottom: 3rem;
-            text-align: left;
-            font-weight: 800;
-            color: var(--title-color);
-        }
-
-        .creation-item {
-            padding: 2rem 0;
-            border-bottom: 1px solid rgba(78, 65, 43, 0.2);
-            font-family: var(--font-main);
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            transition: color 0.3s;
-            cursor: none;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-        
-        .creation-item:first-of-type {
-            border-top: 1px solid rgba(78, 65, 43, 0.2);
-        }
-
-        .creation-item:hover {
-            color: var(--leaf-green);
-        }
-
-        #creation-image-preview {
-            position: fixed;
-            width: 400px;
-            height: 300px;
-            opacity: 0;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            z-index: 9998;
-            overflow: hidden;
-            transition: opacity 0.3s;
-        }
-
-        #creation-image-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* --- Mini-Game Section --- */
-        #mini-game {
-            text-align: center;
-        }
-
-        #mini-game h2 {
-            font-family: var(--font-main);
-            font-size: clamp(2rem, 5vw, 3rem);
-            margin-bottom: 1rem;
-            font-weight: 700;
-            color: var(--sky-blue);
-        }
-
-        #mini-game p {
-            margin-bottom: 2rem;
-            font-size: 1rem;
-        }
-        
-        #mini-game p .banana-emoji {
-            font-size: 1.2em;
-        }
-
-        .game-ui {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .game-area {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            height: 300px;
-            background-color: rgba(255, 255, 255, 0.5);
-            margin: 0 auto 2rem;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .game-banana {
-            position: absolute;
-            font-size: 2rem;
             user-select: none;
-            cursor: none;
+            transition: transform 0.1s ease;
         }
-
-        .game-button {
-            font-family: var(--font-main);
-            background: transparent;
-            border: 2px solid var(--text-color);
-            color: var(--text-color);
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: none;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-            border-radius: 50px;
+        .banana-icon:active {
+            transform: scale(0.9);
         }
-
-        .game-button:hover {
-            background-color: var(--leaf-green);
-            border-color: var(--leaf-green);
-            color: var(--bg-color);
-        }
-        
-        #game-end-message {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        /* --- Fan Art Section --- */
-        #fan-art h2 {
-            font-family: var(--font-main);
-            font-size: clamp(2.5rem, 8vw, 5rem);
-            margin-bottom: 3rem;
-            text-align: center;
-            font-weight: 800;
-            color: var(--title-color);
-        }
-
-        .fan-art-form {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .fan-art-form input[type="file"] {
-            display: none; /* Hide the default input */
-        }
-
-        .fan-art-form .file-label {
-            background-color: var(--leaf-green);
-            color: var(--bg-color);
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: none;
-            transition: background-color 0.3s;
-            border-radius: 50px;
-            display: inline-block;
-        }
-
-        .fan-art-form .file-label:hover {
-            background-color: var(--sky-blue);
-        }
-
-        #fan-art-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .fan-art-item {
-            width: 100%;
-            padding-bottom: 100%; /* Aspect ratio 1:1 */
-            position: relative;
-            overflow: hidden;
-            border-radius: 15px;
-        }
-
-        .fan-art-item img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* --- Responsive Design --- */
-        @media (max-width: 768px) {
-            section {
-                padding: 80px 5%;
-            }
-
-            #about .content-wrapper {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-
-            #about h2 {
-                text-align: left;
-            }
-            
-            #creation-image-preview {
-                display: none;
-            }
-        }
-
     </style>
 </head>
 <body>
+    <div id="root"></div>
 
-    <div id="cursor"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-    <header id="main-header">
-        <nav>
-            <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#creations">Creations</a></li>
-                <li><a href="#mini-game">Game</a></li>
-                <li><a href="#fan-art">Fan Art</a></li>
-            </ul>
-        </nav>
-    </header>
+        // --- Components ---
 
-    <div id="loader">
-        <svg id="loader-svg" viewBox="0 0 104 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M83.1667 1C93.5833 1 103 10.4167 103 20.8333V43.1667C103 53.5833 93.5833 63 83.1667 63H20.8333C10.4167 63 1 53.5833 1 43.1667V20.8333C1 10.4167 10.4167 1 20.8333 1H36.5M83.1667 1H67.5M20.8333 26.8333H31.3333M26.0833 21.3333V32.3333M72.6667 26.8333H83.1667M72.6667 37.8333H83.1667" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    </div>
+        const Header = () => {
+            const [isScrolled, setIsScrolled] = useState(false);
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    <main id="main-content">
-        <section id="hero">
-            <svg id="hero-bg-svg" viewBox="0 0 104 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M83.1667 1C93.5833 1 103 10.4167 103 20.8333V43.1667C103 53.5833 93.5833 63 83.1667 63H20.8333C10.4167 63 1 53.5833 1 43.1667V20.8333C1 10.4167 10.4167 1 20.8333 1H36.5M83.1667 1H67.5M20.8333 26.8333H31.3333M26.0833 21.3333V32.3333M72.6667 26.8333H83.1667M72.6667 37.8333H83.1667" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
-            </svg>
-            <div class="content-wrapper">
-                <h1 class="scroll-anim">ばなこん</h1>
-                <p class="scroll-anim" style="transition-delay: 0.1s;">BANANA GAME LAB MASCOT CHARACTER</p>
-            </div>
-        </section>
-
-        <section id="about">
-            <div class="content-wrapper">
-                <h2 class="scroll-anim">“ロゴ”から生まれた、<br>みんなの相棒。</h2>
-                <div class="text-content scroll-anim">
-                    <p>「ばなこん」は、Web3時代のゲームコミュニティ「Banana Game Lab (BGL)」の公式マスコット。そのオリジンは、BGLのロゴである"バナナ型ゲームコントローラー"そのものです。</p>
-                    <p>デザイナーのねずみまる氏によって命を吹き込まれましたが、厳密な設定はあえて「空白」に。コミュニティの想像力で共に育てていく「開かれたキャンバス」として、BGLが掲げる「ゲームを軸にした居場所づくり」の象徴となっています。</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="creations">
-            <h2 class="scroll-anim">Creations</h2>
-            <div class="creations-list">
-                <div class="creation-item scroll-anim" data-image="https://placehold.jp/3d405b/ffffff/400x300.png?text=Fan+Art">01. Fan Art Contest '24</div>
-                <div class="creation-item scroll-anim" data-image="https://placehold.jp/7a6855/ffffff/400x300.png?text=Goods">02. BGL Original Goods</div>
-                <div class="creation-item scroll-anim" data-image="https://placehold.jp/5a7a5a/ffffff/400x300.png?text=UEFN">03. Banacon Village Project (UEFN)</div>
-            </div>
-        </section>
-        <div id="creation-image-preview"><img src="" alt="Preview"></div>
-
-        <section id="mini-game">
-            <h2 class="scroll-anim">Mini Game: CATCH THE BANANA!</h2>
-            <p class="scroll-anim">15秒間で、画面に出現する <span class="banana-emoji">🍌</span> をクリックしよう。</p>
-            
-            <div class="game-ui scroll-anim">
-                <div id="game-score">SCORE: 0</div>
-                <div id="game-timer">TIME: 15</div>
-            </div>
-
-            <div class="game-area scroll-anim"></div>
-            
-            <div id="game-controls" class="scroll-anim">
-                <div id="game-end-message" style="display: none;"></div>
-                <button id="start-button" class="game-button">START</button>
-                <button id="retry-button" class="game-button" style="display: none;">RETRY</button>
-            </div>
-        </section>
-
-        <section id="fan-art">
-            <h2 class="scroll-anim">Fan Art Gallery</h2>
-            <div class="fan-art-form scroll-anim">
-                <label for="fan-art-upload" class="file-label">+ アートを投稿する</label>
-                <input type="file" id="fan-art-upload" accept="image/*">
-            </div>
-            <div id="fan-art-grid" class="scroll-anim"></div>
-        </section>
-    </main>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-        // --- Loader ---
-        const loader = document.getElementById('loader');
-        const mainContent = document.getElementById('main-content');
-        const loaderPath = document.querySelector('#loader-svg path');
-        
-        // Wait for SVG animation to finish, then fade out loader
-        loaderPath.addEventListener('animationend', () => {
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                mainContent.style.opacity = '1';
-                // After fade out transition, hide loader completely
-                loader.addEventListener('transitionend', () => {
-                    loader.style.display = 'none';
-                });
-            }, 500); // A brief pause after drawing
-        });
-
-        // --- Custom Cursor ---
-        const cursor = document.getElementById('cursor');
-        const clickableElements = document.querySelectorAll('a, button, .creation-item, .game-banana');
-
-        window.addEventListener('mousemove', e => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
-
-        const addHoverEffect = (elements) => {
-            elements.forEach(el => {
-                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-            });
-        }
-        addHoverEffect(clickableElements);
-
-
-        // --- Scroll Animations ---
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.scroll-anim').forEach(el => {
-            observer.observe(el);
-        });
-
-        // --- Creations Hover Image ---
-        const imagePreview = document.getElementById('creation-image-preview');
-        const previewImg = imagePreview.querySelector('img');
-        const creationItems = document.querySelectorAll('.creation-item');
-
-        creationItems.forEach(item => {
-            item.addEventListener('mousemove', e => {
-                imagePreview.style.left = e.clientX + 'px';
-                imagePreview.style.top = e.clientY + 'px';
-            });
-            item.addEventListener('mouseenter', () => {
-                const imgSrc = item.getAttribute('data-image');
-                previewImg.src = imgSrc;
-                imagePreview.style.opacity = '1';
-            });
-            item.addEventListener('mouseleave', () => {
-                imagePreview.style.opacity = '0';
-            });
-        });
-
-        // --- Mini Game ---
-        const gameArea = document.querySelector('.game-area');
-        const scoreDisplay = document.getElementById('game-score');
-        const timerDisplay = document.getElementById('game-timer');
-        const startButton = document.getElementById('start-button');
-        const retryButton = document.getElementById('retry-button');
-        const endMessage = document.getElementById('game-end-message');
-
-        let score = 0;
-        let timeLeft = 15;
-        let gameInterval = null;
-        let gameTimeout = null;
-
-        function startGame() {
-            score = 0;
-            timeLeft = 15;
-            scoreDisplay.textContent = `SCORE: ${score}`;
-            timerDisplay.textContent = `TIME: ${timeLeft}`;
-            
-            startButton.style.display = 'none';
-            retryButton.style.display = 'none';
-            endMessage.style.display = 'none';
-            gameArea.innerHTML = '';
-
-            createBanana();
-
-            gameInterval = setInterval(() => {
-                timeLeft--;
-                timerDisplay.textContent = `TIME: ${timeLeft}`;
-            }, 1000);
-
-            gameTimeout = setTimeout(endGame, 15000);
-        }
-
-        function endGame() {
-            clearInterval(gameInterval);
-            clearTimeout(gameTimeout);
-            gameArea.innerHTML = '';
-            endMessage.textContent = `TIME'S UP! YOUR SCORE: ${score}`;
-            endMessage.style.display = 'block';
-            retryButton.style.display = 'inline-block';
-        }
-
-        function createBanana() {
-            const banana = document.createElement('span');
-            banana.textContent = '🍌';
-            banana.classList.add('game-banana');
-            
-            const gameRect = gameArea.getBoundingClientRect();
-            const bananaSize = 32; // Approx size of the emoji
-            
-            banana.style.left = Math.random() * (gameRect.width - bananaSize) + 'px';
-            banana.style.top = Math.random() * (gameRect.height - bananaSize) + 'px';
-
-            banana.addEventListener('click', handleBananaClick);
-            
-            // Re-apply hover effect for the new banana
-            addHoverEffect([banana]);
-
-            gameArea.appendChild(banana);
-        }
-
-        function handleBananaClick(e) {
-            score++;
-            scoreDisplay.textContent = `SCORE: ${score}`;
-            e.target.remove();
-            createBanana();
-        }
-
-        startButton.addEventListener('click', startGame);
-        retryButton.addEventListener('click', startGame);
-
-        // --- Fan Art Uploader ---
-        const fanArtUpload = document.getElementById('fan-art-upload');
-        const fanArtGrid = document.getElementById('fan-art-grid');
-
-        fanArtUpload.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-
-                reader.onload = (e) => {
-                    const newArtItem = document.createElement('div');
-                    newArtItem.classList.add('fan-art-item');
-
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    
-                    newArtItem.appendChild(img);
-                    fanArtGrid.prepend(newArtItem); // Add new art to the top
+            useEffect(() => {
+                const handleScroll = () => {
+                    setIsScrolled(window.scrollY > 50);
                 };
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
 
-                reader.readAsDataURL(file);
-            }
-        });
-    });
+            const navLinks = [
+                { name: 'Profile', href: '#profile' },
+                { name: 'Gallery', href: '#gallery' },
+                { name: 'Game', href: '#game' },
+            ];
+
+            const NavLinkItems = ({ onClick }) => (
+                navLinks.map(link => (
+                    <a key={link.name} href={link.href} onClick={onClick} className="font-press-start block text-white hover:text-yellow-300 transition-colors duration-300 py-2 text-center text-sm">
+                        {link.name}
+                    </a>
+                ))
+            );
+
+            return (
+                <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-emerald-900/50 backdrop-blur-lg shadow-lg' : 'bg-transparent'}`}>
+                    <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
+                        <a href="#welcome" className="font-press-start text-xl text-white">BANACON</a>
+                        <div className="hidden md:flex items-center space-x-8">
+                            <NavLinkItems />
+                        </div>
+                        <div className="md:hidden">
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white focus:outline-none">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </nav>
+                    {isMenuOpen && (
+                        <div className="md:hidden fixed inset-0 z-40 bg-emerald-800/80 backdrop-blur-xl flex flex-col items-center justify-center space-y-6">
+                            <NavLinkItems onClick={() => setIsMenuOpen(false)} />
+                        </div>
+                    )}
+                </header>
+            );
+        };
+
+        const WelcomeSection = () => (
+            <section id="welcome" className="min-h-screen flex flex-col justify-center items-center text-center px-4">
+                <div className="scroll-animate">
+                    <h1 className="font-press-start text-5xl md:text-7xl text-white flex items-center justify-center gap-4">
+                        <span role="img" aria-label="Palm Tree">🌴</span>
+                        BANACON
+                        <span role="img" aria-label="Palm Tree">🌴</span>
+                    </h1>
+                    <p className="mt-4 text-lg md:text-xl text-white">- BGL's Official Mascot Character -</p>
+                    <a href="#profile" className="mt-8 inline-block bg-yellow-400 text-gray-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-300 transition-colors duration-300 transform hover:scale-105">
+                        EXPLORE
+                    </a>
+                </div>
+            </section>
+        );
+
+        const ProfileSection = () => (
+            <section id="profile" className="py-20 md:py-32 px-4">
+                <div className="container mx-auto max-w-4xl">
+                    <div className="scroll-animate glassmorphism p-8 md:p-12">
+                        <h2 className="font-press-start text-3xl md:text-4xl text-center mb-8">
+                            PRO<span className="text-yellow-300">F</span>ILE
+                        </h2>
+                        <p className="text-base md:text-lg leading-relaxed text-center text-white">
+                            Banana Game Labの公式マスコット「ばなこん」。 そのオリジンは、BGLのロゴである”バナナ型ゲームコントローラー”。 コミュニティと共に成長する「開かれた存在」として、ゲームを軸にした心地よい居場所（リゾート）のシンボルです。
+                        </p>
+                    </div>
+                </div>
+            </section>
+        );
+
+        const GallerySection = () => {
+            const cards = [
+                { title: 'Sunset Beach', description: 'Relaxing on the beach as the sun sets.', img: 'https://picsum.photos/seed/beach/400/300' },
+                { title: 'Tropical Juice', description: 'Enjoying a refreshing drink under the palms.', img: 'https://picsum.photos/seed/juice/400/300' },
+                { title: 'Relaxing Hammock', description: 'A lazy nap, swaying in the hammock.', img: 'https://picsum.photos/seed/hammock/400/300' }
+            ];
+
+            return (
+                <section id="gallery" className="py-20 md:py-32 px-4">
+                    <div className="container mx-auto">
+                        <div className="scroll-animate">
+                            <h2 className="font-press-start text-3xl md:text-4xl text-center mb-12">
+                                GA<span className="text-yellow-300">LL</span>ERY
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {cards.map((card, index) => (
+                                    <div key={index} className="glassmorphism overflow-hidden transform transition-transform duration-300 hover:-translate-y-2">
+                                        <img src={card.img} alt={card.title} className="w-full h-48 object-cover" />
+                                        <div className="p-6">
+                                            <h3 className="font-bold text-xl mb-2">{card.title}</h3>
+                                            <p className="text-white/80">{card.description}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const GameSection = () => {
+            const GAME_DURATION = 30;
+            const [score, setScore] = useState(0);
+            const [time, setTime] = useState(GAME_DURATION);
+            const [isActive, setIsActive] = useState(false);
+            const [isGameOver, setIsGameOver] = useState(false);
+            const [bananaPos, setBananaPos] = useState({ top: '50%', left: '50%' });
+            const gameAreaRef = useRef(null);
+
+            useEffect(() => {
+                let timer;
+                if (isActive && time > 0) {
+                    timer = setInterval(() => {
+                        setTime(prevTime => prevTime - 1);
+                    }, 1000);
+                } else if (time === 0 && isActive) {
+                    setIsActive(false);
+                    setIsGameOver(true);
+                }
+                return () => clearInterval(timer);
+            }, [isActive, time]);
+
+            const moveBanana = () => {
+                if (gameAreaRef.current) {
+                    const gameArea = gameAreaRef.current.getBoundingClientRect();
+                    const top = Math.random() * (gameArea.height - 50);
+                    const left = Math.random() * (gameArea.width - 50);
+                    setBananaPos({ top: `${top}px`, left: `${left}px` });
+                }
+            };
+
+            const handleBananaClick = () => {
+                if (!isActive) return;
+                setScore(prevScore => prevScore + 1);
+                moveBanana();
+            };
+
+            const startGame = () => {
+                setScore(0);
+                setTime(GAME_DURATION);
+                setIsActive(true);
+                setIsGameOver(false);
+                // Use a timeout to ensure the game area is rendered before moving the banana
+                setTimeout(moveBanana, 100);
+            };
+
+            return (
+                <section id="game" className="py-20 md:py-32 px-4">
+                    <div className="container mx-auto max-w-2xl">
+                        <div className="scroll-animate">
+                            <h2 className="font-press-start text-3xl md:text-4xl text-center mb-8">CATCH THE BANANA</h2>
+                            <div className="glassmorphism p-8 text-center">
+                                <div className="flex justify-around items-center mb-6 font-press-start text-lg">
+                                    <h3>SCORE: {score}</h3>
+                                    <h3>TIME: {time}</h3>
+                                </div>
+                                <div ref={gameAreaRef} className="relative w-full h-64 bg-black/20 rounded-lg overflow-hidden">
+                                    {!isActive && !isGameOver && (
+                                        <button onClick={startGame} className="absolute inset-0 flex items-center justify-center font-press-start text-2xl bg-yellow-400 text-gray-900 hover:bg-yellow-300 transition-colors duration-300">
+                                            START GAME
+                                        </button>
+                                    )}
+                                    {isActive && (
+                                        <span className="banana-icon" style={{ top: bananaPos.top, left: bananaPos.left }} onClick={handleBananaClick}>
+                                            🍌
+                                        </span>
+                                    )}
+                                    {isGameOver && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70">
+                                            <h3 className="font-press-start text-4xl text-red-500">GAME OVER</h3>
+                                            <p className="mt-4 text-xl">YOUR SCORE: {score}</p>
+                                            <button onClick={startGame} className="mt-6 font-press-start text-lg bg-yellow-400 text-gray-900 py-2 px-4 rounded hover:bg-yellow-300 transition-colors duration-300">
+                                                PLAY AGAIN
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+        
+        const App = () => {
+            useEffect(() => {
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                            }
+                        });
+                    },
+                    { threshold: 0.1 }
+                );
+
+                const targets = document.querySelectorAll('.scroll-animate');
+                targets.forEach(target => observer.observe(target));
+
+                return () => targets.forEach(target => observer.unobserve(target));
+            }, []);
+
+            return (
+                <>
+                    <Header />
+                    <main>
+                        <WelcomeSection />
+                        <ProfileSection />
+                        <GallerySection />
+                        <GameSection />
+                    </main>
+                    <footer className="text-center py-8 px-4 text-white/70">
+                        <p>&copy; 2025 BANACON. All Rights Reserved.</p>
+                    </footer>
+                </>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
 </html>
